@@ -1,12 +1,9 @@
-import { GlobalStyle } from './styles/GlobalStyle'
-
-import { Greetings } from './components/Greetings'
-
+import { ChakraProvider } from '@chakra-ui/react'
+import Home from './containers/Home'
 export function App() {
   return (
-    <>
-      <GlobalStyle />
-      <Greetings />
-    </>
+    <ChakraProvider>
+      <Home />
+    </ChakraProvider>
   )
 }
