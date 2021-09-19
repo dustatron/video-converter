@@ -1,3 +1,4 @@
-import ProRes from './types'
+import {ProRes, File} from './types'
 
-export default ProRes
+export { ProRes }
+export type { File }

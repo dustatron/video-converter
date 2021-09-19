@@ -1,33 +1,27 @@
 import { ReactElement, useCallback, useState, ChangeEvent } from 'react'
 import {
   VStack,
-  HStack,
+  Stack,
   Box,
   Button,
-  Input,
   Select,
   Text,
 } from '@chakra-ui/react'
 import { useDropzone } from 'react-dropzone'
-import ProRes from '../../utils'
+import{ File, ProRes } from '../../utils'
 
-// interface Props { }
+interface Props {
+  toLocation: string,
+  setToLocation: (location: string) => void
+  fileList: File[]
+  setFileList: (files: File[])=>void
+ }
 
-interface File {
-  lastModified: number
-  lastModifiedDate: Date
-  name: string
-  path: string
-  size: number
-  type: string
-  webkitRelativePath: string
-}
 
-function GetFiles(): ReactElement {
-  const [fileList, setFileList] = useState<File[]>([])
-  const [toLocation, setToLocation] = useState<string>(
-    '/Users/dusty/Desktop/test/'
-  )
+
+function GetFiles({ toLocation, setToLocation, fileList, setFileList }:Props): ReactElement {
+  
+
   const [proResFlavor, setProResFlavor] = useState<ProRes>(ProRes.STANDARD)
 
   const handleProRes = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -52,6 +46,21 @@ function GetFiles(): ReactElement {
   return (
     <>
       <VStack spacing={6} marginTop={5}>
+      <Stack direction='row' width='100%'>
+          <Text fontSize="l" fontWeight="bold" width='40%'>
+            ProRes Flavor
+          </Text>
+          <Select value={proResFlavor} onChange={handleProRes}>
+            <option value={ProRes.PROXY}>{ProRes.PROXY}</option>
+            <option value={ProRes.LT}>{ProRes.LT}</option>
+            <option value={ProRes.STANDARD}>{ProRes.STANDARD}</option>
+            <option value={ProRes.HQ}>{ProRes.HQ}</option>
+            <option value={ProRes.Quad4}>{ProRes.Quad4}</option>
+          </Select>
+        <Box>
+          <Button colorScheme="facebook">Run</Button>
+        </Box>
+        </Stack>
         <Box
           height="8em"
           width="100%"
@@ -81,7 +90,7 @@ function GetFiles(): ReactElement {
             Open File Dialog
           </Button>
         </Box>
-        <VStack spacing={3}>
+        <Stack direction='column' spacing={3}>
           {fileList.map((file: File) => (
             <Box border="1px" key={file.path}>
               <Box>File:{file.name}</Box>
@@ -90,30 +99,8 @@ function GetFiles(): ReactElement {
               <Box>Size:{file.size}</Box>
             </Box>
           ))}
-        </VStack>
-        <HStack>
-          <Input
-            type="text"
-            value={toLocation}
-            onChange={e => setToLocation(e.target.value)}
-          />
-          <Button>Location</Button>
-        </HStack>
-        <VStack>
-          <Text fontSize="xl" fontWeight="bold">
-            ProRes Flavor
-          </Text>
-          <Select value={proResFlavor} onChange={handleProRes}>
-            <option value={ProRes.PROXY}>{ProRes.PROXY}</option>
-            <option value={ProRes.LT}>{ProRes.LT}</option>
-            <option value={ProRes.STANDARD}>{ProRes.STANDARD}</option>
-            <option value={ProRes.HQ}>{ProRes.HQ}</option>
-            <option value={ProRes.Quad4}>{ProRes.Quad4}</option>
-          </Select>
-        </VStack>
-        <Box>
-          <Button colorScheme="facebook">Run</Button>
-        </Box>
+        </Stack>
+       
       </VStack>
     </>
   )

@@ -1,11 +1,29 @@
+import {
+  HStack,
+  Button,
+  Input,
+  Text
+} from '@chakra-ui/react'
+
 interface Props {
-  
+  toLocation: string,
+  setToLocation: (location: string) => void
 }
 
-const Settings = (props: Props) => {
+const Settings = ({ toLocation, setToLocation}: Props) => {
   return (
     <div>
-      Settings
+      <Text>
+        Destination
+      </Text>
+      <HStack>
+          <Input
+            type="text"
+            value={toLocation}
+            onChange={e => setToLocation(e.target.value)}
+          />
+          <Button>Location</Button>
+        </HStack>
     </div>
   )
 }
