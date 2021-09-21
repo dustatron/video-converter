@@ -10,13 +10,12 @@ import {
   TabPanels,
   TabPanel,
 } from '@chakra-ui/react'
-import { File } from '../../utils'
 
 const Home = () => {
   const [toLocation, setToLocation] = useState<string>(
-    '/Users/dusty/Desktop/test/'
+    '/Users/dusty/Desktop/test'
   )
-  const [fileList, setFileList] = useState<File[]>([])
+  
   return (
     <Container maxW="container.xl">
       <Heading>Video Converter</Heading>
@@ -29,9 +28,7 @@ const Home = () => {
           <TabPanel>
             <GetFiles
               toLocation={toLocation}
-              setToLocation={setToLocation}
-              fileList={fileList}
-              setFileList={setFileList}
+
             />
           </TabPanel>
           <TabPanel>

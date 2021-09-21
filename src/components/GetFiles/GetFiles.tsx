@@ -8,25 +8,41 @@ import {
   Text,
 } from '@chakra-ui/react'
 import { useDropzone } from 'react-dropzone'
-import{ File, ProRes } from '../../utils'
+import { File, ProRes } from '../../utils'
 
 interface Props {
   toLocation: string,
-  setToLocation: (location: string) => void
-  fileList: File[]
-  setFileList: (files: File[])=>void
  }
 
 
 
-function GetFiles({ toLocation, setToLocation, fileList, setFileList }:Props): ReactElement {
+function GetFiles({ toLocation }:Props): ReactElement {
   
-
+  const [fileList, setFileList] = useState<File[]>([])
   const [proResFlavor, setProResFlavor] = useState<ProRes>(ProRes.STANDARD)
+  const [errorMessage, setErrorMessage] = useState<string>('')
 
   const handleProRes = (e: ChangeEvent<HTMLSelectElement>) => {
     const flavor = e.target.value
     setProResFlavor(flavor as ProRes)
+  }
+
+  const handleFeedback = (feedback: object) => {
+    console.log('from callback', feedback)
+  }
+
+  const handleStart = () => {
+    window.Main.sendMessage(`hello ${proResFlavor}`)
+    console.log('fileList', fileList)
+    if (fileList.length > 0) {
+      console.log('running Process', fileList)
+      fileList.forEach((file) => {
+        window.Main.convert(file.path, file.name, toLocation, proResFlavor, handleFeedback)
+       })
+    } else {
+      console.log('no files')
+      setErrorMessage('No Files to convert')
+    }
   }
 
   const onDropMemo = useCallback(
@@ -58,7 +74,7 @@ function GetFiles({ toLocation, setToLocation, fileList, setFileList }:Props): R
             <option value={ProRes.Quad4}>{ProRes.Quad4}</option>
           </Select>
         <Box>
-          <Button colorScheme="facebook">Run</Button>
+            <Button colorScheme="facebook" onClick={handleStart}>Run</Button>
         </Box>
         </Stack>
         <Box
@@ -100,7 +116,7 @@ function GetFiles({ toLocation, setToLocation, fileList, setFileList }:Props): R
             </Box>
           ))}
         </Stack>
-       
+        <Box>{ errorMessage }</Box>
       </VStack>
     </>
   )
