@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer, remote } from 'electron'
-import { ProRes, removeFileExtension, getRecipe } from '../src/utils'
+import { ProRes, removeFileExtension, getRecipe, getPresetNumber } from '../src/utils'
 // import makeProRes from './makeProRes'
 import { exec } from 'child_process'
 import FfmpegCommand from 'fluent-ffmpeg'
@@ -68,6 +68,27 @@ export const api = {
         { count: 2, timemarks: ['00:00:02.000', '6'], size: '1280x720' },
         toPath
       )
+  },
+  makeProRes: (filePath: string, fileName: string, toPath: string, preset: ProRes, index: number, getProgress: (progress: number, index: number) => void) => {
+    const cleanName = removeFileExtension(fileName)
+    FfmpegCommand(filePath)
+      .videoCodec('prores_ks')
+      .audioCodec('pcm_s16le')
+      .outputOptions([`-profile:v ${getPresetNumber(preset)}`, '-qscale:v 9', '-vendor ap10', '-pix_fmt yuv422p10le'])
+      .on('filenames', function (filenames) {
+        console.log('screenshots are ' + filenames.join(', '))
+      })
+      .on('progress', function (info) {
+        getProgress(info.percent, index)
+        // console.log('progress ' + info.percent + '%');
+      })
+      .on('end', function () {
+        console.log('File has completed')
+      })
+      .on('error', function (err) {
+        console.log('an error happened: ' + err.message)
+      })
+      .save(`${toPath}/${cleanName}.mov`);
   },
   /**
    *

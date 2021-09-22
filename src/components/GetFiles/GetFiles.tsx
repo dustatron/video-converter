@@ -6,48 +6,56 @@ import {
   Button,
   Select,
   Text,
+  Progress,
 } from '@chakra-ui/react'
 import { useDropzone } from 'react-dropzone'
 import { File, ProRes } from '../../utils'
 
 interface Props {
-  toLocation: string,
-  proResFlavor: ProRes,
+  toLocation: string
+  proResFlavor: ProRes
   setProResFlavor: (flavor: ProRes) => void
   setErrorMessage: (message: string) => void
   errorMessage: string
- }
+}
 
-
-
-function GetFiles({ toLocation, proResFlavor, setProResFlavor, setErrorMessage, errorMessage }:Props): ReactElement {
-  
+function GetFiles({
+  toLocation,
+  proResFlavor,
+  setProResFlavor,
+  setErrorMessage,
+  errorMessage,
+}: Props): ReactElement {
   const [fileList, setFileList] = useState<File[]>([])
-  
+  const [progress, setProgress] = useState<number>(0)
 
   const handleProRes = (e: ChangeEvent<HTMLSelectElement>) => {
     const flavor = e.target.value
     setProResFlavor(flavor as ProRes)
   }
 
-  const handleFeedback = (feedback: object) => {
-    console.log('from callback', feedback)
-  }
-
-  const handleThumbNail = () => {
-    window.Main.thumbNail('/Users/dusty/Movies/test_1.mp4',toLocation)
+  const getProgress = (progress: number, index: number) => {
+    setProgress(progress)
+    console.log('progress', progress)
   }
 
   const handleStart = () => {
-    if (toLocation.length <=0) {
+    if (toLocation.length <= 0) {
       return setErrorMessage('Please set destination')
     }
     if (fileList.length <= 0) {
       return setErrorMessage('No Files to convert')
     }
     if (fileList.length > 0) {
-      return fileList.forEach((file) => {
-        window.Main.convert(file.path, file.name, toLocation, proResFlavor, handleFeedback)
+      return fileList.forEach((file, index) => {
+        window.Main.makeProRes(
+          file.path,
+          file.name,
+          toLocation,
+          proResFlavor,
+          index,
+          getProgress
+        )
       })
     } else {
       return setErrorMessage('Something went wrong')
@@ -71,8 +79,8 @@ function GetFiles({ toLocation, proResFlavor, setProResFlavor, setErrorMessage, 
   return (
     <>
       <VStack spacing={6} marginTop={5}>
-      <Stack direction='row' width='100%'>
-          <Text fontSize="l" fontWeight="bold" width='40%'>
+        <Stack direction="row" width="100%">
+          <Text fontSize="l" fontWeight="bold" width="40%">
             ProRes Flavor
           </Text>
           <Select value={proResFlavor} onChange={handleProRes}>
@@ -82,12 +90,11 @@ function GetFiles({ toLocation, proResFlavor, setProResFlavor, setErrorMessage, 
             <option value={ProRes.HQ}>{ProRes.HQ}</option>
             <option value={ProRes.Quad4}>{ProRes.Quad4}</option>
           </Select>
-        <Box>
-            <Button colorScheme="facebook" onClick={handleStart}>Run</Button>
-        </Box>
-        <Box>
-            <Button colorScheme="facebook" onClick={handleThumbNail}>ThumbNail</Button>
-        </Box>
+          <Box>
+            <Button colorScheme="facebook" onClick={handleStart}>
+              Run
+            </Button>
+          </Box>
         </Stack>
         <Box
           height="8em"
@@ -118,7 +125,7 @@ function GetFiles({ toLocation, proResFlavor, setProResFlavor, setErrorMessage, 
             Open File Dialog
           </Button>
         </Box>
-        <Stack direction='column' spacing={3}>
+        <Stack direction="column" spacing={3}>
           {fileList.map((file: File) => (
             <Box border="1px" key={file.path}>
               <Box>File:{file.name}</Box>
@@ -128,7 +135,11 @@ function GetFiles({ toLocation, proResFlavor, setProResFlavor, setErrorMessage, 
             </Box>
           ))}
         </Stack>
-        <Box>{ errorMessage }</Box>
+        <Box>{errorMessage}</Box>
+        <Box width='100%'>
+          { progress }
+          <Progress hasStripe isAnimated value={progress} />
+        </Box>
       </VStack>
     </>
   )

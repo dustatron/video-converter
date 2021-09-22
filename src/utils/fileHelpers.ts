@@ -28,3 +28,19 @@ export const getRecipe = (profile: ProRes) => {
       return PROPRES_422
   }
  }
+export const getPresetNumber = (profile: ProRes) => {
+  switch (profile) {
+    case ProRes.PROXY:
+      return 0
+    case ProRes.LT:
+      return 1
+    case ProRes.STANDARD:
+      return 2
+    case ProRes.HQ:
+      return 3
+    case ProRes.Quad4:
+      return 4
+    default:
+      return 1
+  }
+ }
