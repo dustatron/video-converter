@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect} from 'react'
 import Settings from '../../components/Settings'
 import GetFiles from '../../components/GetFiles'
+import { ProRes } from '../../utils'
 import {
   Container,
   Heading,
@@ -12,9 +13,27 @@ import {
 } from '@chakra-ui/react'
 
 const Home = () => {
-  const [toLocation, setToLocation] = useState<string>(
-    '/Users/dusty/Desktop/test'
-  )
+  const [toLocation, setToLocation] = useState<string>('')
+  const [proResFlavor, setProResFlavor] = useState<ProRes>(ProRes.STANDARD)
+  const [errorMessage, setErrorMessage] = useState<string>('')
+
+  const setLocalStorage = () => {
+    localStorage.setItem('video-converter-to', toLocation);
+    localStorage.setItem('video-converter-flavor', proResFlavor);
+
+  }
+  useEffect(() => {
+    const toLocation = localStorage.getItem('video-converter-to')
+    const flavor = localStorage.getItem('video-converter-flavor') as ProRes
+    if (toLocation) {
+      setToLocation(toLocation)
+      setProResFlavor(flavor)
+    }
+  }, [])
+  
+  useEffect(() => {
+    setLocalStorage()
+  },[toLocation, proResFlavor, setLocalStorage])
   
   return (
     <Container maxW="container.xl">
@@ -28,7 +47,10 @@ const Home = () => {
           <TabPanel>
             <GetFiles
               toLocation={toLocation}
-
+              proResFlavor={proResFlavor}
+              setProResFlavor={setProResFlavor}
+              errorMessage={errorMessage}
+              setErrorMessage={setErrorMessage}
             />
           </TabPanel>
           <TabPanel>

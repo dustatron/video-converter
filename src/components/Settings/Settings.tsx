@@ -10,7 +10,14 @@ interface Props {
   setToLocation: (location: string) => void
 }
 
-const Settings = ({ toLocation, setToLocation}: Props) => {
+
+const Settings = ({ toLocation, setToLocation }: Props) => {
+  const openDialogBox = async () => {
+    const result = await window.Main.getFolder()
+    if (!result.canceled) {
+      setToLocation(result.filePaths[0])
+    }
+   }
   return (
     <div>
       <Text>
@@ -22,7 +29,7 @@ const Settings = ({ toLocation, setToLocation}: Props) => {
             value={toLocation}
             onChange={e => setToLocation(e.target.value)}
           />
-          <Button>Location</Button>
+        <Button onClick={openDialogBox}>Location</Button>
         </HStack>
     </div>
   )

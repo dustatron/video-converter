@@ -19,6 +19,7 @@ function createWindow () {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: true,
+      enableRemoteModule: true,
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY
     }
   })

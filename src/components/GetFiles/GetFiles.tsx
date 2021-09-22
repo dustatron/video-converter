@@ -12,15 +12,18 @@ import { File, ProRes } from '../../utils'
 
 interface Props {
   toLocation: string,
+  proResFlavor: ProRes,
+  setProResFlavor: (flavor: ProRes) => void
+  setErrorMessage: (message: string) => void
+  errorMessage: string
  }
 
 
 
-function GetFiles({ toLocation }:Props): ReactElement {
+function GetFiles({ toLocation, proResFlavor, setProResFlavor, setErrorMessage, errorMessage }:Props): ReactElement {
   
   const [fileList, setFileList] = useState<File[]>([])
-  const [proResFlavor, setProResFlavor] = useState<ProRes>(ProRes.STANDARD)
-  const [errorMessage, setErrorMessage] = useState<string>('')
+  
 
   const handleProRes = (e: ChangeEvent<HTMLSelectElement>) => {
     const flavor = e.target.value
@@ -31,17 +34,23 @@ function GetFiles({ toLocation }:Props): ReactElement {
     console.log('from callback', feedback)
   }
 
+  const handleThumbNail = () => {
+    window.Main.thumbNail('/Users/dusty/Movies/test_1.mp4',toLocation)
+  }
+
   const handleStart = () => {
-    window.Main.sendMessage(`hello ${proResFlavor}`)
-    console.log('fileList', fileList)
+    if (toLocation.length <=0) {
+      return setErrorMessage('Please set destination')
+    }
+    if (fileList.length <= 0) {
+      return setErrorMessage('No Files to convert')
+    }
     if (fileList.length > 0) {
-      console.log('running Process', fileList)
-      fileList.forEach((file) => {
+      return fileList.forEach((file) => {
         window.Main.convert(file.path, file.name, toLocation, proResFlavor, handleFeedback)
-       })
+      })
     } else {
-      console.log('no files')
-      setErrorMessage('No Files to convert')
+      return setErrorMessage('Something went wrong')
     }
   }
 
@@ -75,6 +84,9 @@ function GetFiles({ toLocation }:Props): ReactElement {
           </Select>
         <Box>
             <Button colorScheme="facebook" onClick={handleStart}>Run</Button>
+        </Box>
+        <Box>
+            <Button colorScheme="facebook" onClick={handleThumbNail}>ThumbNail</Button>
         </Box>
         </Stack>
         <Box
