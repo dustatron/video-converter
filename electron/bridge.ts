@@ -7,7 +7,14 @@ import FfmpegCommand from 'fluent-ffmpeg'
 interface DialogResult {
   canceled: boolean,
   filePaths: string[]
- }
+}
+ 
+interface Update {
+  progress?: number,
+  end?: boolean,
+  error?: string,
+  start: boolean
+}
 
 
 export const api = {
@@ -69,24 +76,51 @@ export const api = {
         toPath
       )
   },
-  makeProRes: (filePath: string, fileName: string, toPath: string, preset: ProRes, index: number, getProgress: (progress: number, index: number) => void) => {
+  makeProRes: (filePath: string, fileName: string, toPath: string, preset: ProRes, index: number, makeUpdate: (index: number, update: object) => void) => {
     const cleanName = removeFileExtension(fileName)
     FfmpegCommand(filePath)
       .videoCodec('prores_ks')
       .audioCodec('pcm_s16le')
       .outputOptions([`-profile:v ${getPresetNumber(preset)}`, '-qscale:v 9', '-vendor ap10', '-pix_fmt yuv422p10le'])
-      .on('filenames', function (filenames) {
-        console.log('screenshots are ' + filenames.join(', '))
+      .on('start', function (filenames) {
+        const update: Update = {
+          progress: undefined,
+          end: false,
+          error: '',
+          start: true
+        }
+        makeUpdate(index, update)
       })
       .on('progress', function (info) {
-        getProgress(info.percent, index)
+        const update: Update = {
+          progress: info.percent,
+          end: false,
+          error: '',
+          start: true
+        }
+        makeUpdate(index, update)
         // console.log('progress ' + info.percent + '%');
       })
       .on('end', function () {
-        console.log('File has completed')
+        const update: Update = {
+          progress: undefined,
+          end: true,
+          error: undefined,
+          start: false
+        }
+        makeUpdate(index, update)
+        // console.log('File has completed')
       })
       .on('error', function (err) {
-        console.log('an error happened: ' + err.message)
+        const message = 'an error happened: ' + err.message
+        const update: Update = {
+          progress: undefined,
+          end: false,
+          error: message,
+          start: false
+        }
+        makeUpdate(index, update)
+        // console.log('an error happened: ' + err.message)
       })
       .save(`${toPath}/${cleanName}.mov`);
   },

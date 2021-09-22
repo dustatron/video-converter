@@ -10,6 +10,7 @@ import {
 } from '@chakra-ui/react'
 import { useDropzone } from 'react-dropzone'
 import { File, ProRes } from '../../utils'
+import { ArrowRightIcon, DeleteIcon } from '@chakra-ui/icons'
 
 interface Props {
   toLocation: string
@@ -17,6 +18,13 @@ interface Props {
   setProResFlavor: (flavor: ProRes) => void
   setErrorMessage: (message: string) => void
   errorMessage: string
+}
+
+interface Update {
+  progress?: number
+  end?: boolean
+  error?: string
+  start?: string
 }
 
 function GetFiles({
@@ -28,15 +36,30 @@ function GetFiles({
 }: Props): ReactElement {
   const [fileList, setFileList] = useState<File[]>([])
   const [progress, setProgress] = useState<number>(0)
+  const [status, setStatus] = useState<string>('not started')
 
   const handleProRes = (e: ChangeEvent<HTMLSelectElement>) => {
     const flavor = e.target.value
     setProResFlavor(flavor as ProRes)
   }
 
-  const getProgress = (progress: number, index: number) => {
-    setProgress(progress)
-    console.log('progress', progress)
+  const makeUpdate = (index: number, update: Update) => {
+    const { progress, end, error, start } = update
+    if (start) {
+      setStatus('started')
+    }
+
+    if (progress) {
+      setProgress(progress)
+    }
+
+    if (end) {
+      setStatus('Finished')
+    }
+
+    if (error) {
+      setErrorMessage('File has completed')
+    }
   }
 
   const handleStart = () => {
@@ -54,7 +77,7 @@ function GetFiles({
           toLocation,
           proResFlavor,
           index,
-          getProgress
+          makeUpdate
         )
       })
     } else {
@@ -78,10 +101,10 @@ function GetFiles({
 
   return (
     <>
-      <VStack spacing={6} marginTop={5}>
+      <VStack spacing={2} marginTop={5}>
         <Stack direction="row" width="100%">
-          <Text fontSize="l" fontWeight="bold" width="40%">
-            ProRes Flavor
+          <Text fontSize="l" fontWeight="semibold" width="20%" align='center' padding='2'>
+            Presets
           </Text>
           <Select value={proResFlavor} onChange={handleProRes}>
             <option value={ProRes.PROXY}>{ProRes.PROXY}</option>
@@ -91,8 +114,14 @@ function GetFiles({
             <option value={ProRes.Quad4}>{ProRes.Quad4}</option>
           </Select>
           <Box>
-            <Button colorScheme="facebook" onClick={handleStart}>
-              Run
+            <Button
+              background="green.500"
+              color="white"
+              onClick={handleStart}
+              rightIcon={<ArrowRightIcon />}
+              isDisabled={fileList.length <= 0 }
+            >
+              Start
             </Button>
           </Box>
         </Stack>
@@ -100,21 +129,17 @@ function GetFiles({
           height="8em"
           width="100%"
           border="2px"
+          borderStyle="dashed"
           borderRadius="md"
+          display="flex"
+          flexDir="column"
+          justifyContent="center"
+          alignItems="center"
           bg="gray.100"
           id="From"
           {...getRootProps({ refKey: 'initialFile' })}
         >
           <input {...getInputProps()} />
-          {isDragActive ? (
-            <Box padding="5" color="gray.500">
-              Drop the files here ...
-            </Box>
-          ) : (
-            <Box padding="5" color="gray.500">
-              Drag and drop some files here, or click to select files
-            </Box>
-          )}
           <Button
             margin="auto"
             display="block"
@@ -122,9 +147,29 @@ function GetFiles({
             onClick={open}
             colorScheme="blue"
           >
-            Open File Dialog
+            Choose files to convert
           </Button>
+          {isDragActive ? (
+            <Box padding="5" color="gray.500">
+              Ready for files...
+            </Box>
+          ) : (
+            <Box padding="2" width="100%" textAlign="center" color="gray.500">
+              Or drag and drop there here
+            </Box>
+          )}
         </Box>
+        <Stack direction="row">
+          <Button>Cancel</Button>
+          <Button
+            rightIcon={<DeleteIcon />}
+            onClick={() => {
+              setFileList([])
+            }}
+          >
+            Clear All
+          </Button>
+        </Stack>
         <Stack direction="column" spacing={3}>
           {fileList.map((file: File) => (
             <Box border="1px" key={file.path}>
@@ -135,10 +180,14 @@ function GetFiles({
             </Box>
           ))}
         </Stack>
+
+        <Box>{status}</Box>
         <Box>{errorMessage}</Box>
-        <Box width='100%'>
-          { progress }
-          <Progress hasStripe isAnimated value={progress} />
+        <Box width="100%">
+          {status === 'started' && (
+            <Progress hasStripe isAnimated value={progress} />
+          )}
+          {status === 'Finished' && <Progress value={100} />}
         </Box>
       </VStack>
     </>
