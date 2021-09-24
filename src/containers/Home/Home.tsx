@@ -1,10 +1,11 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable no-unused-vars */
-import { useState, useEffect, useReducer } from 'react'
+import { useState, useEffect, useReducer, Dispatch, SetStateAction } from 'react'
 import Settings from '../../components/Settings'
 import GetFiles from '../../components/GetFiles'
 import { ProRes, File } from '../../utils'
-import { ActionsFiles, State, Action, Reducer } from '../../utils/index'
+import { State} from '../../utils/index'
+import { filesReducer } from './reducer'
 import {
   Container,
   Heading,
@@ -17,51 +18,11 @@ import {
 
 const fileState: State = []
 
-const filesReducer: Reducer<State, Action> = (state: State, action: Action) => {
-  const { type, payload } = action
-  switch (type) {
-    case ActionsFiles.AddFiles:
-      console.log(payload!.files!)
-      const formatFiles = payload!.files!.map(
-        (file): File => {
-          return {
-            lastModified: file.lastModified,
-            lastModifiedDate: file.lastModifiedDate,
-            name: file.name,
-            path: file.path,
-            size: file.size,
-            type: file.type,
-            webkitRelativePath: file.webkitRelativePath,
-            status: {
-              errorMessage: null,
-              hasEnded: false,
-              hasStarted: false,
-              isComplete: false,
-              progress: 0
-            }
-          }
-        }
-      )
-      console.log('formate', formatFiles)
-      return [...state, ...formatFiles]
-    case ActionsFiles.ClearAll:
-      return []
-    case ActionsFiles.RemoveItem:
-      return state.filter((_, index) => index !== payload!.index!)
-    case ActionsFiles.UpdateItem:
-      const newState = state.map((item, index) => {
-        if (index === payload?.index) {
-          return payload.item
-        }
-        return item
-      })
-      return newState as File[]
-    default:
-      return state
-  }
+interface Props {
+  setAlert: (value: string | null) => void
 }
 
-const Home = () => {
+const Home = ({ setAlert }:Props) => {
   const [filesList, dispatchFileList] = useReducer(filesReducer, fileState)
   const [toLocation, setToLocation] = useState<string>('')
   const [proResFlavor, setProResFlavor] = useState<ProRes>(ProRes.STANDARD)
@@ -89,7 +50,7 @@ const Home = () => {
       <Heading>Video Converter</Heading>
       <Tabs isFitted variant="enclosed">
         <TabList mb="1em">
-          <Tab>Convert</Tab>
+          <Tab>Batch Convert</Tab>
           <Tab>Settings</Tab>
         </TabList>
         <TabPanels>
@@ -101,7 +62,7 @@ const Home = () => {
               proResFlavor={proResFlavor}
               setProResFlavor={setProResFlavor}
               errorMessage={errorMessage}
-              setErrorMessage={setErrorMessage}
+              setAlert={setAlert}
             />
           </TabPanel>
           <TabPanel>

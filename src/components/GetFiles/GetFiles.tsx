@@ -16,7 +16,7 @@ interface Props {
   toLocation: string
   proResFlavor: ProRes
   setProResFlavor: (flavor: ProRes) => void
-  setErrorMessage: (message: string) => void
+  setAlert: (message: string) => void
   errorMessage: string
   filesList: State
   dispatchFileList: (action: Action) => void
@@ -26,8 +26,7 @@ function GetFiles({
   toLocation,
   proResFlavor,
   setProResFlavor,
-  setErrorMessage,
-  errorMessage,
+  setAlert,
   dispatchFileList,
   filesList,
 }: Props): ReactElement {
@@ -53,15 +52,15 @@ function GetFiles({
 
   const handleStart = async () => {
     if (toLocation.length <= 0) {
-      return setErrorMessage('Please set destination')
+      return setAlert('Please set destination')
     }
     if (filesList.length <= 0) {
-      return setErrorMessage('No Files to convert')
+      return setAlert('No Files to convert')
     }
     if (filesList.length > 0) {
       await processBatch()
     } else {
-      return setErrorMessage('Something went wrong')
+      return setAlert('Something went wrong')
     }
   }
 
@@ -71,7 +70,6 @@ function GetFiles({
         type: ActionsFiles.AddFiles,
         payload: { index: 0, files: acceptedFile },
       })
-      console.log(filesList)
     },
     [filesList]
   )
