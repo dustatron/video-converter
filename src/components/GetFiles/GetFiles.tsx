@@ -1,20 +1,13 @@
 import { ReactElement, useCallback, ChangeEvent } from 'react'
-import {
-  VStack,
-  Stack,
-  Box,
-  Button,
-  Select,
-  Text,
-} from '@chakra-ui/react'
+import { VStack, Stack, Box, Button, Select, Text } from '@chakra-ui/react'
 import { useDropzone } from 'react-dropzone'
 import {
   File,
   ProRes,
-  ConvertStatus,
   ActionsFiles,
   Action,
   State,
+  useMakeUpdate
 } from '../../utils'
 import { ArrowRightIcon, DeleteIcon } from '@chakra-ui/icons'
 import ListItem from '../ListItem'
@@ -38,92 +31,27 @@ function GetFiles({
   dispatchFileList,
   filesList,
 }: Props): ReactElement {
-
   const handleProRes = (e: ChangeEvent<HTMLSelectElement>) => {
     const flavor = e.target.value
     setProResFlavor(flavor as ProRes)
   }
 
-  const makeUpdate = (index: number, update: ConvertStatus) => {
-    const { progress, hasEnded, errorMessage, hasStarted, isComplete } = update
-    if (hasStarted && !hasEnded) {
-      dispatchFileList({
-        type: ActionsFiles.UpdateItem,
-        payload: {
-          index: index,
-          item: {
-            ...filesList[index],
-            status: {
-              hasStarted: true,
-              hasEnded: false,
-              isComplete: false,
-              progress: 0,
-              errorMessage: null
-            },
-          },
-        },
-      })
-    }
+  const makeUpdate = useMakeUpdate(dispatchFileList, filesList)
 
-    if (hasStarted && progress) {
-      dispatchFileList({
-        type: ActionsFiles.UpdateItem,
-        payload: {
-          index: index,
-          item: {
-            ...filesList[index],
-            status: {
-              hasStarted: true,
-              hasEnded: false,
-              isComplete: false,
-              progress: progress,
-              errorMessage: null
-            },
-          },
-        },
-      })
-    }
-
-    if (isComplete) {
-      dispatchFileList({
-        type: ActionsFiles.UpdateItem,
-        payload: {
-          index: index,
-          item: {
-            ...filesList[index],
-            status: {
-              hasStarted: true,
-              hasEnded: true,
-              isComplete: true,
-              progress: 0,
-              errorMessage: null
-            },
-          },
-        },
-      })
-    }
-
-    if (errorMessage) {
-      dispatchFileList({
-        type: ActionsFiles.UpdateItem,
-        payload: {
-          index: index,
-          item: {
-            ...filesList[index],
-            status: {
-              hasStarted: true,
-              hasEnded: true,
-              isComplete: false,
-              progress: 0,
-              errorMessage: errorMessage,
-            },
-          },
-        },
-      })
+  const processBatch = async () => {
+    for (let i = 0; i < filesList.length; i++) {
+      await window.Main.makeProRes(
+        filesList[i].path,
+        filesList[i].name,
+        toLocation,
+        proResFlavor,
+        i,
+        makeUpdate
+      )
     }
   }
 
-  const handleStart = () => {
+  const handleStart = async () => {
     if (toLocation.length <= 0) {
       return setErrorMessage('Please set destination')
     }
@@ -131,16 +59,7 @@ function GetFiles({
       return setErrorMessage('No Files to convert')
     }
     if (filesList.length > 0) {
-      return filesList.forEach((file, index) => {
-        window.Main.makeProRes(
-          file.path,
-          file.name,
-          toLocation,
-          proResFlavor,
-          index,
-          makeUpdate
-        )
-      })
+      await processBatch()
     } else {
       return setErrorMessage('Something went wrong')
     }
@@ -230,7 +149,6 @@ function GetFiles({
           )}
         </Box>
         <Stack direction="row">
-          <Button>Cancel</Button>
           <Button
             rightIcon={<DeleteIcon />}
             onClick={() => {

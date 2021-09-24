@@ -8,7 +8,7 @@ interface DialogResult {
   canceled: boolean,
   filePaths: string[]
 }
- 
+
 export interface ConvertStatus {
   progress?: number
   hasEnded: boolean
@@ -29,7 +29,7 @@ export const api = {
   sendMessage: (message: string) => {
     ipcRenderer.send('message', message)
   },
-
+  // This is an old experiment 
   convert: (
     filePath: string,
     fileName: string,
@@ -78,55 +78,61 @@ export const api = {
   },
   makeProRes: (filePath: string, fileName: string, toPath: string, preset: ProRes, index: number, makeUpdate: (index: number, update: ConvertStatus) => void) => {
     const cleanName = removeFileExtension(fileName)
-    FfmpegCommand(filePath)
-      .videoCodec('prores_ks')
-      .audioCodec('pcm_s16le')
-      .outputOptions([`-profile:v ${getPresetNumber(preset)}`, '-qscale:v 9', '-vendor ap10', '-pix_fmt yuv422p10le'])
-      .on('start', function (filenames) {
-        const update: ConvertStatus = {
-          progress: undefined,
-          hasEnded: false,
-          errorMessage: '',
-          hasStarted: true,
-          isComplete: false
-        }
-        makeUpdate(index, update)
-      })
-      .on('progress', function (info) {
-        const update: ConvertStatus = {
-          progress: info.percent,
-          hasEnded: false,
-          errorMessage: '',
-          hasStarted: true,
-          isComplete: false
-        }
-        makeUpdate(index, update)
-        // console.log('progress ' + info.percent + '%');
-      })
-      .on('end', function () {
-        const update: ConvertStatus = {
-          progress: undefined,
-          hasEnded: true,
-          errorMessage: '',
-          hasStarted: true,
-          isComplete: true
-        }
-        makeUpdate(index, update)
-        // console.log('File has completed')
-      })
-      .on('error', function (err) {
-        const message = 'an error happened: ' + err.message
-        const update: ConvertStatus = {
-          progress: undefined,
-          hasEnded: false,
-          errorMessage: message,
-          hasStarted: true,
-          isComplete: false
-        }
-        makeUpdate(index, update)
-        // console.log('an error happened: ' + err.message)
-      })
-      .save(`${toPath}/${cleanName}.mov`);
+    const promise = new Promise<void>((resolve, reject) => {
+      FfmpegCommand(filePath)
+        .videoCodec('prores_ks')
+        .audioCodec('pcm_s16le')
+        .outputOptions([`-profile:v ${getPresetNumber(preset)}`, '-qscale:v 9', '-vendor ap10', '-pix_fmt yuv422p10le'])
+        .on('start', function (filenames) {
+          const update: ConvertStatus = {
+            progress: undefined,
+            hasEnded: false,
+            errorMessage: '',
+            hasStarted: true,
+            isComplete: false
+          }
+          makeUpdate(index, update)
+        })
+        .on('progress', function (info) {
+          const update: ConvertStatus = {
+            progress: info.percent,
+            hasEnded: false,
+            errorMessage: '',
+            hasStarted: true,
+            isComplete: false
+          }
+          makeUpdate(index, update)
+          // console.log('progress ' + info.percent + '%');
+        })
+        .on('end', function () {
+          const update: ConvertStatus = {
+            progress: undefined,
+            hasEnded: true,
+            errorMessage: '',
+            hasStarted: true,
+            isComplete: true
+          }
+          makeUpdate(index, update)
+          resolve()
+          // console.log('File has completed')
+        })
+        .on('error', function (err) {
+          const message = 'an error happened: ' + err.message
+          const update: ConvertStatus = {
+            progress: undefined,
+            hasEnded: false,
+            errorMessage: message,
+            hasStarted: true,
+            isComplete: false
+          }
+          makeUpdate(index, update)
+          // console.log('an error happened: ' + err.message)
+          return reject(new Error(err))
+        })
+        .save(`${toPath}/${cleanName}.mov`);
+      
+    })
+    return promise;
   },
   /**
    *
@@ -134,9 +140,9 @@ export const api = {
    * @param callback
    */
   getFolder: async () => {
-    
+
     return new Promise<DialogResult>((resolve, reject) => {
-      const result = remote.dialog.showOpenDialog({properties: ['openDirectory']})
+      const result = remote.dialog.showOpenDialog({ properties: ['openDirectory'] })
 
       result.then((results) => {
         resolve(results)

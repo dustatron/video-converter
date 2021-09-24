@@ -1,4 +1,4 @@
-import { ProRes } from "."
+import { ProRes, ActionsFiles, File, ConvertStatus } from "."
 import { PROPRES_422, PROPRES_HQ, PROPRES_4444, PROPRES_LT, PROPRES_PROXY } from './recipes'
 
 export const removeFileExtension = (fileName: string) => {
@@ -43,4 +43,88 @@ export const getPresetNumber = (profile: ProRes) => {
     default:
       return 1
   }
- }
+}
+
+export const useMakeUpdate = (dispatchFileList: any, filesList: File[]) => {
+
+  const makeUpdate = (index: number, update: ConvertStatus) => {
+    const { progress, hasEnded, errorMessage, hasStarted, isComplete } = update
+    if (hasStarted && !hasEnded) {
+      dispatchFileList({
+        type: ActionsFiles.UpdateItem,
+        payload: {
+          index: index,
+          item: {
+            ...filesList[index],
+            status: {
+              hasStarted: true,
+              hasEnded: false,
+              isComplete: false,
+              progress: 0,
+              errorMessage: null,
+            },
+          },
+        },
+      })
+    }
+  
+    if (hasStarted && progress) {
+      dispatchFileList({
+        type: ActionsFiles.UpdateItem,
+        payload: {
+          index: index,
+          item: {
+            ...filesList[index],
+            status: {
+              hasStarted: true,
+              hasEnded: false,
+              isComplete: false,
+              progress: progress,
+              errorMessage: null,
+            },
+          },
+        },
+      })
+    }
+  
+    if (isComplete) {
+      dispatchFileList({
+        type: ActionsFiles.UpdateItem,
+        payload: {
+          index: index,
+          item: {
+            ...filesList[index],
+            status: {
+              hasStarted: true,
+              hasEnded: true,
+              isComplete: true,
+              progress: 0,
+              errorMessage: null,
+            },
+          },
+        },
+      })
+    }
+  
+    if (errorMessage) {
+      dispatchFileList({
+        type: ActionsFiles.UpdateItem,
+        payload: {
+          index: index,
+          item: {
+            ...filesList[index],
+            status: {
+              hasStarted: true,
+              hasEnded: true,
+              isComplete: false,
+              progress: 0,
+              errorMessage: errorMessage,
+            },
+          },
+        },
+      })
+    }
+  }
+  return makeUpdate
+}
+ 
