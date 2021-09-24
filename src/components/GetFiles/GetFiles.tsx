@@ -9,8 +9,16 @@ import {
   Progress,
 } from '@chakra-ui/react'
 import { useDropzone } from 'react-dropzone'
-import { File, ProRes } from '../../utils'
+import {
+  File,
+  ProRes,
+  ConvertStatus,
+  ActionsFiles,
+  Action,
+  State,
+} from '../../utils'
 import { ArrowRightIcon, DeleteIcon } from '@chakra-ui/icons'
+import ListItem from '../ListItem'
 
 interface Props {
   toLocation: string
@@ -18,13 +26,8 @@ interface Props {
   setProResFlavor: (flavor: ProRes) => void
   setErrorMessage: (message: string) => void
   errorMessage: string
-}
-
-interface Update {
-  progress?: number
-  end?: boolean
-  error?: string
-  start?: string
+  filesList: State
+  dispatchFileList: (action: Action) => void
 }
 
 function GetFiles({
@@ -33,8 +36,10 @@ function GetFiles({
   setProResFlavor,
   setErrorMessage,
   errorMessage,
+  dispatchFileList,
+  filesList,
 }: Props): ReactElement {
-  const [fileList, setFileList] = useState<File[]>([])
+  // const [fileList, setFileList] = useState<File[]>([])
   const [progress, setProgress] = useState<number>(0)
   const [status, setStatus] = useState<string>('not started')
 
@@ -43,21 +48,21 @@ function GetFiles({
     setProResFlavor(flavor as ProRes)
   }
 
-  const makeUpdate = (index: number, update: Update) => {
-    const { progress, end, error, start } = update
-    if (start) {
+  const makeUpdate = (index: number, update: ConvertStatus) => {
+    const { progress, hasEnded, errorMessage, hasStarted, isComplete } = update
+    if (hasStarted && !hasEnded) {
       setStatus('started')
     }
 
-    if (progress) {
+    if (hasStarted && progress) {
       setProgress(progress)
     }
 
-    if (end) {
+    if (isComplete) {
       setStatus('Finished')
     }
 
-    if (error) {
+    if (errorMessage) {
       setErrorMessage('File has completed')
     }
   }
@@ -66,11 +71,11 @@ function GetFiles({
     if (toLocation.length <= 0) {
       return setErrorMessage('Please set destination')
     }
-    if (fileList.length <= 0) {
+    if (filesList.length <= 0) {
       return setErrorMessage('No Files to convert')
     }
-    if (fileList.length > 0) {
-      return fileList.forEach((file, index) => {
+    if (filesList.length > 0) {
+      return filesList.forEach((file, index) => {
         window.Main.makeProRes(
           file.path,
           file.name,
@@ -87,10 +92,13 @@ function GetFiles({
 
   const onDropMemo = useCallback(
     acceptedFile => {
-      setFileList([...fileList, ...acceptedFile])
-      console.log(fileList)
+      dispatchFileList({
+        type: ActionsFiles.AddFiles,
+        payload: { index: 0, files: acceptedFile },
+      })
+      console.log(filesList)
     },
-    [fileList]
+    [filesList]
   )
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
@@ -103,7 +111,13 @@ function GetFiles({
     <>
       <VStack spacing={2} marginTop={5}>
         <Stack direction="row" width="100%">
-          <Text fontSize="l" fontWeight="semibold" width="20%" align='center' padding='2'>
+          <Text
+            fontSize="l"
+            fontWeight="semibold"
+            width="20%"
+            align="center"
+            padding="2"
+          >
             Presets
           </Text>
           <Select value={proResFlavor} onChange={handleProRes}>
@@ -119,7 +133,7 @@ function GetFiles({
               color="white"
               onClick={handleStart}
               rightIcon={<ArrowRightIcon />}
-              isDisabled={fileList.length <= 0 }
+              isDisabled={filesList.length <= 0}
             >
               Start
             </Button>
@@ -164,20 +178,15 @@ function GetFiles({
           <Button
             rightIcon={<DeleteIcon />}
             onClick={() => {
-              setFileList([])
+              dispatchFileList({ type: ActionsFiles.ClearAll })
             }}
           >
             Clear All
           </Button>
         </Stack>
         <Stack direction="column" spacing={3}>
-          {fileList.map((file: File) => (
-            <Box border="1px" key={file.path}>
-              <Box>File:{file.name}</Box>
-              <Box>Path:{file.path}</Box>
-              <Box>Type:{file.type}</Box>
-              <Box>Size:{file.size}</Box>
-            </Box>
+          {filesList.map((file: File, index: number) => (
+            <ListItem file={file} dispatch={dispatchFileList} index={index} />
           ))}
         </Stack>
 

@@ -1,7 +1,9 @@
-import { useState, useEffect} from 'react'
+/* eslint-disable no-unused-vars */
+import { useState, useEffect, useReducer } from 'react'
 import Settings from '../../components/Settings'
 import GetFiles from '../../components/GetFiles'
 import { ProRes } from '../../utils'
+import { ActionsFiles, State, Action, Reducer } from '../../utils/index'
 import {
   Container,
   Heading,
@@ -12,7 +14,29 @@ import {
   TabPanel,
 } from '@chakra-ui/react'
 
+const fileState: State = []
+
+const filesReducer: Reducer<State, Action> = (state: State, action: Action) => {
+  const { type, payload } = action
+  switch (type) {
+    case ActionsFiles.AddFiles:
+      return [...state, ...payload!.files!]
+    case ActionsFiles.ClearAll:
+      return []
+    case ActionsFiles.RemoveItem:
+      return state.filter((_, index) => (index !== payload!.index!))
+    case ActionsFiles.UpdateItem:
+      // eslint-disable-next-line no-case-declarations
+      const newState = [...state]
+      newState.splice(payload?.index!, 1, payload?.item! )
+      return newState
+    default:
+      return state
+  }
+}
+
 const Home = () => {
+  const [filesList, dispatchFileList] = useReducer(filesReducer, fileState);
   const [toLocation, setToLocation] = useState<string>('')
   const [proResFlavor, setProResFlavor] = useState<ProRes>(ProRes.STANDARD)
   const [errorMessage, setErrorMessage] = useState<string>('')
@@ -46,6 +70,8 @@ const Home = () => {
         <TabPanels>
           <TabPanel>
             <GetFiles
+              filesList={filesList}
+              dispatchFileList={dispatchFileList}
               toLocation={toLocation}
               proResFlavor={proResFlavor}
               setProResFlavor={setProResFlavor}

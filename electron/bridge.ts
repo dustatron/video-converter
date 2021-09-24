@@ -9,13 +9,13 @@ interface DialogResult {
   filePaths: string[]
 }
  
-interface Update {
-  progress?: number,
-  end?: boolean,
-  error?: string,
-  start: boolean
+export interface ConvertStatus {
+  progress?: number
+  hasEnded: boolean
+  isComplete: boolean
+  hasStarted: boolean
+  errorMessage: string
 }
-
 
 export const api = {
   /**
@@ -76,48 +76,52 @@ export const api = {
         toPath
       )
   },
-  makeProRes: (filePath: string, fileName: string, toPath: string, preset: ProRes, index: number, makeUpdate: (index: number, update: object) => void) => {
+  makeProRes: (filePath: string, fileName: string, toPath: string, preset: ProRes, index: number, makeUpdate: (index: number, update: ConvertStatus) => void) => {
     const cleanName = removeFileExtension(fileName)
     FfmpegCommand(filePath)
       .videoCodec('prores_ks')
       .audioCodec('pcm_s16le')
       .outputOptions([`-profile:v ${getPresetNumber(preset)}`, '-qscale:v 9', '-vendor ap10', '-pix_fmt yuv422p10le'])
       .on('start', function (filenames) {
-        const update: Update = {
+        const update: ConvertStatus = {
           progress: undefined,
-          end: false,
-          error: '',
-          start: true
+          hasEnded: false,
+          errorMessage: '',
+          hasStarted: true,
+          isComplete: false
         }
         makeUpdate(index, update)
       })
       .on('progress', function (info) {
-        const update: Update = {
+        const update: ConvertStatus = {
           progress: info.percent,
-          end: false,
-          error: '',
-          start: true
+          hasEnded: false,
+          errorMessage: '',
+          hasStarted: true,
+          isComplete: false
         }
         makeUpdate(index, update)
         // console.log('progress ' + info.percent + '%');
       })
       .on('end', function () {
-        const update: Update = {
+        const update: ConvertStatus = {
           progress: undefined,
-          end: true,
-          error: undefined,
-          start: false
+          hasEnded: true,
+          errorMessage: '',
+          hasStarted: true,
+          isComplete: true
         }
         makeUpdate(index, update)
         // console.log('File has completed')
       })
       .on('error', function (err) {
         const message = 'an error happened: ' + err.message
-        const update: Update = {
+        const update: ConvertStatus = {
           progress: undefined,
-          end: false,
-          error: message,
-          start: false
+          hasEnded: false,
+          errorMessage: message,
+          hasStarted: true,
+          isComplete: false
         }
         makeUpdate(index, update)
         // console.log('an error happened: ' + err.message)
