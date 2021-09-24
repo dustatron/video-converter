@@ -55,7 +55,7 @@ const filesReducer: Reducer<State, Action> = (state: State, action: Action) => {
         }
         return item
       })
-      return newState!
+      return newState as File[]
     default:
       return state
   }
