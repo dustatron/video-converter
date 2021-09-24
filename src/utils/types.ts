@@ -18,7 +18,7 @@ export interface ConvertStatus {
   hasEnded: boolean
   isComplete: boolean
   hasStarted: boolean
-  errorMessage: string
+  errorMessage: string | null
 }
 
 export interface File {
@@ -29,12 +29,17 @@ export interface File {
   size: number
   type: string
   webkitRelativePath: string
-  status?: ConvertStatus
+  status: ConvertStatus
 }
 export interface Payload {
   index?: number,
   files?: File[],
-  item?: File
+  item?: File,
+  progress?: number
+  hasEnded?: boolean
+  isComplete?: boolean
+  hasStarted?: boolean
+  errorMessage?: string | null
 }
 
 export type State = File[]

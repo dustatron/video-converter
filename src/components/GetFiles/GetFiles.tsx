@@ -1,4 +1,4 @@
-import { ReactElement, useCallback, useState, ChangeEvent } from 'react'
+import { ReactElement, useCallback, ChangeEvent } from 'react'
 import {
   VStack,
   Stack,
@@ -6,7 +6,6 @@ import {
   Button,
   Select,
   Text,
-  Progress,
 } from '@chakra-ui/react'
 import { useDropzone } from 'react-dropzone'
 import {
@@ -39,9 +38,6 @@ function GetFiles({
   dispatchFileList,
   filesList,
 }: Props): ReactElement {
-  // const [fileList, setFileList] = useState<File[]>([])
-  const [progress, setProgress] = useState<number>(0)
-  const [status, setStatus] = useState<string>('not started')
 
   const handleProRes = (e: ChangeEvent<HTMLSelectElement>) => {
     const flavor = e.target.value
@@ -51,19 +47,79 @@ function GetFiles({
   const makeUpdate = (index: number, update: ConvertStatus) => {
     const { progress, hasEnded, errorMessage, hasStarted, isComplete } = update
     if (hasStarted && !hasEnded) {
-      setStatus('started')
+      dispatchFileList({
+        type: ActionsFiles.UpdateItem,
+        payload: {
+          index: index,
+          item: {
+            ...filesList[index],
+            status: {
+              hasStarted: true,
+              hasEnded: false,
+              isComplete: false,
+              progress: 0,
+              errorMessage: null
+            },
+          },
+        },
+      })
     }
 
     if (hasStarted && progress) {
-      setProgress(progress)
+      dispatchFileList({
+        type: ActionsFiles.UpdateItem,
+        payload: {
+          index: index,
+          item: {
+            ...filesList[index],
+            status: {
+              hasStarted: true,
+              hasEnded: false,
+              isComplete: false,
+              progress: progress,
+              errorMessage: null
+            },
+          },
+        },
+      })
     }
 
     if (isComplete) {
-      setStatus('Finished')
+      dispatchFileList({
+        type: ActionsFiles.UpdateItem,
+        payload: {
+          index: index,
+          item: {
+            ...filesList[index],
+            status: {
+              hasStarted: true,
+              hasEnded: true,
+              isComplete: true,
+              progress: 0,
+              errorMessage: null
+            },
+          },
+        },
+      })
     }
 
     if (errorMessage) {
-      setErrorMessage('File has completed')
+      dispatchFileList({
+        type: ActionsFiles.UpdateItem,
+        payload: {
+          index: index,
+          item: {
+            ...filesList[index],
+            status: {
+              hasStarted: true,
+              hasEnded: true,
+              isComplete: false,
+              progress: 0,
+              errorMessage: errorMessage,
+            },
+          },
+        },
+      })
     }
   }
 
@@ -151,7 +207,7 @@ function GetFiles({
           alignItems="center"
           bg="gray.100"
           id="From"
-          {...getRootProps({ refKey: 'initialFile' })}
+          {...getRootProps({ refKey: 'initialFile' })} // dropzone element
         >
           <input {...getInputProps()} />
           <Button
@@ -184,20 +240,16 @@ function GetFiles({
             Clear All
           </Button>
         </Stack>
-        <Stack direction="column" spacing={3}>
+        <Stack direction="column" spacing={3} width="100%">
           {filesList.map((file: File, index: number) => (
-            <ListItem file={file} dispatch={dispatchFileList} index={index} />
+            <ListItem
+              file={file}
+              dispatch={dispatchFileList}
+              index={index}
+              key={file.path}
+            />
           ))}
         </Stack>
-
-        <Box>{status}</Box>
-        <Box>{errorMessage}</Box>
-        <Box width="100%">
-          {status === 'started' && (
-            <Progress hasStripe isAnimated value={progress} />
-          )}
-          {status === 'Finished' && <Progress value={100} />}
-        </Box>
       </VStack>
     </>
   )
