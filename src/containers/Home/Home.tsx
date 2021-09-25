@@ -26,18 +26,25 @@ const Home = ({ setAlert }:Props) => {
   const [filesList, dispatchFileList] = useReducer(filesReducer, fileState)
   const [toLocation, setToLocation] = useState<string>('')
   const [proResFlavor, setProResFlavor] = useState<ProRes>(ProRes.STANDARD)
-  const [errorMessage, setErrorMessage] = useState<string>('')
+  const [fileTypes, setFileTypes] = useState<string>('mp4, mov, webm, avi, mkv')
 
   const setLocalStorage = () => {
     localStorage.setItem('video-converter-to', toLocation)
     localStorage.setItem('video-converter-flavor', proResFlavor)
+    localStorage.setItem('video-converter-fileTypes', fileTypes)
   }
   useEffect(() => {
     const toLocation = localStorage.getItem('video-converter-to')
     const flavor = localStorage.getItem('video-converter-flavor') as ProRes
+    const fileTypes = localStorage.getItem('video-converter-fileTypes')
     if (toLocation) {
       setToLocation(toLocation)
+    }
+    if (flavor) {
       setProResFlavor(flavor)
+    }
+    if (fileTypes) {
+      setFileTypes(fileTypes)
     }
   }, [])
 
@@ -50,7 +57,7 @@ const Home = ({ setAlert }:Props) => {
       <Heading>Video Converter</Heading>
       <Tabs isFitted variant="enclosed">
         <TabList mb="1em">
-          <Tab>Batch Convert</Tab>
+          <Tab>Convert</Tab>
           <Tab>Settings</Tab>
         </TabList>
         <TabPanels>
@@ -61,12 +68,16 @@ const Home = ({ setAlert }:Props) => {
               toLocation={toLocation}
               proResFlavor={proResFlavor}
               setProResFlavor={setProResFlavor}
-              errorMessage={errorMessage}
               setAlert={setAlert}
             />
           </TabPanel>
           <TabPanel>
-            <Settings toLocation={toLocation} setToLocation={setToLocation} />
+            <Settings
+              toLocation={toLocation}
+              setToLocation={setToLocation}
+              fileTypes={fileTypes}
+              setFileTypes={setFileTypes}
+            />
           </TabPanel>
         </TabPanels>
       </Tabs>

@@ -17,7 +17,6 @@ interface Props {
   proResFlavor: ProRes
   setProResFlavor: (flavor: ProRes) => void
   setAlert: (message: string) => void
-  errorMessage: string
   filesList: State
   dispatchFileList: (action: Action) => void
 }
