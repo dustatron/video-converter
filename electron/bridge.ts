@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer, remote } from 'electron'
 import { ProRes, removeFileExtension, getRecipe, getPresetNumber } from '../src/utils'
 // import makeProRes from './makeProRes'
 import { exec } from 'child_process'
+import path from 'path'
 import FfmpegCommand from 'fluent-ffmpeg'
 
 interface DialogResult {
@@ -102,7 +103,6 @@ export const api = {
             isComplete: false
           }
           makeUpdate(index, update)
-          // console.log('progress ' + info.percent + '%');
         })
         .on('end', function () {
           const update: ConvertStatus = {
@@ -114,7 +114,6 @@ export const api = {
           }
           makeUpdate(index, update)
           resolve()
-          // console.log('File has completed')
         })
         .on('error', function (err) {
           const message = 'an error happened: ' + err.message
@@ -126,10 +125,9 @@ export const api = {
             isComplete: false
           }
           makeUpdate(index, update)
-          // console.log('an error happened: ' + err.message)
           return reject(new Error(err))
         })
-        .save(`${toPath}/${cleanName}.mov`);
+        .save(path.join(toPath,`${cleanName}.mov`));
       
     })
     return promise;
@@ -142,7 +140,7 @@ export const api = {
   getFolder: async () => {
 
     return new Promise<DialogResult>((resolve, reject) => {
-      const result = remote.dialog.showOpenDialog({ properties: ['openDirectory'] })
+      const result = remote.dialog.showOpenDialog({ properties: ['openDirectory', 'createDirectory'] })
 
       result.then((results) => {
         resolve(results)

@@ -35,13 +35,13 @@ const ListItem = ({ file, index, dispatch }: Props) => {
   }
   return (
     <Flex border="1px" width="100%" borderRadius="md">
-      <Center width="15%">
-        {!status.hasStarted && <Icon as={FaTag} />}
-        {status.hasStarted && !status.hasEnded && <Spinner />}
-        {status.isComplete && <Icon as={FaCheckCircle} />}
-        {status.errorMessage && <Icon as={RiErrorWarningFill} />}
+      <Center width="10%">
+        {!status.hasStarted && <Icon color='blue.500' w={6} h={6} as={FaTag} />}
+        {status.hasStarted && !status.hasEnded && <Spinner color='blue.500' emptyColor="gray.200" thickness='4px' />}
+        {status.isComplete && <Icon color='green.500' w={10} h={10} as={FaCheckCircle} />}
+        {status.errorMessage && <Icon color='red.500' w={6} h={6} as={RiErrorWarningFill} />}
       </Center>
-      <Box width="80%" padding="2" height="6em">
+      <Box width="85%" padding="2" height="6em">
         Source: <strong>{file.name}</strong>
         <Box>Status: {getStatusReport()}</Box>
         {!status.isComplete && (
@@ -49,7 +49,7 @@ const ListItem = ({ file, index, dispatch }: Props) => {
         )}
         {status.isComplete && <Progress value={100} />}
       </Box>
-      <Box width="10%">
+      <Box width="6%">
         <Button
           variant='link'
           padding='2'
