@@ -6,15 +6,12 @@ import {
   FormControl,
   FormLabel,
 } from '@chakra-ui/react'
+import { useSettings } from '../../context/SettingsContext'
 
-interface Props {
-  toLocation: string
-  setToLocation: (location: string) => void
-  fileTypes: string
-  setFileTypes: (fileType: string) => void
-}
 
-const Settings = ({ toLocation, setToLocation, fileTypes, setFileTypes }: Props) => {
+const Settings = () => {
+  const { toLocation, setToLocation, fileTypes, setFileTypes } = useSettings()
+  
   const openDialogBox = async () => {
     const result = await window.Main.getFolder()
     if (!result.canceled) {

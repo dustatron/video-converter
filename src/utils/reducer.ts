@@ -1,6 +1,6 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable no-unused-vars */
-import { ActionsFiles, State, Action, Reducer, File } from '../../utils/index'
+import { ActionsFiles, State, Action, Reducer, File } from './index'
 
 export const filesReducer: Reducer<State, Action> = (
   state: State,

@@ -5,30 +5,25 @@ import {
   File,
   ProRes,
   ActionsFiles,
-  Action,
-  State,
-  useMakeUpdate
+  useMakeUpdate,
 } from '../../utils'
 import { ArrowRightIcon, DeleteIcon } from '@chakra-ui/icons'
+import { useSettings } from '../../context/SettingsContext'
 import ListItem from '../ListItem'
 
 interface Props {
-  toLocation: string
-  proResFlavor: ProRes
-  setProResFlavor: (flavor: ProRes) => void
   setAlert: (message: string) => void
-  filesList: State
-  dispatchFileList: (action: Action) => void
 }
 
-function GetFiles({
-  toLocation,
-  proResFlavor,
-  setProResFlavor,
-  setAlert,
-  dispatchFileList,
-  filesList,
-}: Props): ReactElement {
+function GetFiles({ setAlert }: Props): ReactElement {
+  const {
+    toLocation,
+    proResFlavor,
+    setProResFlavor,
+    dispatchFileList,
+    filesList,
+  } = useSettings()
+
   const handleProRes = (e: ChangeEvent<HTMLSelectElement>) => {
     const flavor = e.target.value
     setProResFlavor(flavor as ProRes)

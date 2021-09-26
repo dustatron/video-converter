@@ -1,4 +1,6 @@
 /* eslint-disable no-unused-vars */
+import { Dispatch } from 'React'
+
 export enum ProRes {
   PROXY = 'ProPres Proxy',
   LT = 'ProPres LT',
@@ -48,5 +50,19 @@ export type Action = {
   type: ActionsFiles,
   payload?: Payload
 }
+export interface SettingsHook {
+  filesList: State,
+  dispatchFileList: Dispatch<Action>,
+  toLocation: string,
+  setToLocation: (value: string) => void,
+  proResFlavor: ProRes,
+  setProResFlavor: (flavor: ProRes) => void,
+  fileTypes: string,
+  setFileTypes: (fileTypes: string) => void
+  alert: string | null,
+  setAlert: (alertMessage: string | null) => void
+}
+
+
 
 export type Reducer<State, Action> = (state: State, action: Action) => State;
