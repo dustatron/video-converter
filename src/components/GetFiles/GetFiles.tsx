@@ -35,7 +35,7 @@ function GetFiles(): ReactElement {
   const [status, setState] = useState<ReactElement<any, any>>()
 
   useEffect(() => {
-    setState(getStatus())
+    setState(getStatusBadge())
   }, [filesList])
 
   const handleProRes = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -47,14 +47,16 @@ function GetFiles(): ReactElement {
 
   const processBatch = async () => {
     for (let i = 0; i < filesList.length; i++) {
-      await window.Main.makeProRes(
-        filesList[i].path,
-        filesList[i].name,
-        toLocation,
-        proResFlavor,
-        i,
-        makeUpdate
-      )
+      if (!filesList[i].status.isComplete) {
+        await window.Main.makeProRes(
+          filesList[i].path,
+          filesList[i].name,
+          toLocation,
+          proResFlavor,
+          i,
+          makeUpdate
+        )
+      }
     }
   }
 
@@ -73,7 +75,7 @@ function GetFiles(): ReactElement {
     )
   }
 
-  const getStatus = () => {
+  const getStatusBadge = () => {
     const hasStarted =
       filesList.filter(item => item.status.hasStarted).length > 0
     const isComplete =
