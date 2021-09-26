@@ -9,10 +9,8 @@ import {
   TabPanels,
   TabPanel,
 } from '@chakra-ui/react'
-import { useSettings } from '../../context/SettingsContext'
 
 const Home = () => {
-  const { setAlert } = useSettings()
 
   return (
     <Container maxW="container.xl">
@@ -24,9 +22,7 @@ const Home = () => {
         </TabList>
         <TabPanels>
           <TabPanel>
-            <GetFiles
-              setAlert={setAlert}
-            />
+            <GetFiles/>
           </TabPanel>
           <TabPanel>
             <Settings/>

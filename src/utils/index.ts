@@ -14,6 +14,7 @@ import {
   getRecipe,
   getPresetNumber,
   useMakeUpdate,
+  getFileExtension
 } from './fileHelpers'
 import { filesReducer } from './reducer'
 
@@ -25,5 +26,6 @@ export {
   ActionsFiles,
   useMakeUpdate,
   filesReducer,
+  getFileExtension
 }
 export type { File, ConvertStatus, Payload, State, Action, Reducer, SettingsHook }

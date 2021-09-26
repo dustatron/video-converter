@@ -11,17 +11,15 @@ import { ArrowRightIcon, DeleteIcon } from '@chakra-ui/icons'
 import { useSettings } from '../../context/SettingsContext'
 import ListItem from '../ListItem'
 
-interface Props {
-  setAlert: (message: string) => void
-}
-
-function GetFiles({ setAlert }: Props): ReactElement {
+function GetFiles(): ReactElement {
   const {
     toLocation,
     proResFlavor,
     setProResFlavor,
     dispatchFileList,
     filesList,
+    setAlert,
+    fileTypes
   } = useSettings()
 
   const handleProRes = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -62,7 +60,7 @@ function GetFiles({ setAlert }: Props): ReactElement {
     acceptedFile => {
       dispatchFileList({
         type: ActionsFiles.AddFiles,
-        payload: { index: 0, files: acceptedFile },
+        payload: { index: 0, files: acceptedFile, fileTypes: fileTypes },
       })
     },
     [filesList]

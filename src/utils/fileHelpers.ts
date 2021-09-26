@@ -12,6 +12,17 @@ export const removeFileExtension = (fileName: string) => {
   }
 }
 
+export const getFileExtension = (fileName: string) => {
+  if (fileName.length <= 0) {
+    return fileName
+  }
+  for (let i = fileName.length; i > 0; i --) {
+    if (fileName[i - 1] === '.') {
+      return fileName.substring(i, fileName.length)
+     }
+  }
+}
+
 export const getRecipe = (profile: ProRes) => {
   switch (profile) {
     case ProRes.PROXY:

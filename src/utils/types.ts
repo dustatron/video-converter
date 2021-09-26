@@ -42,6 +42,7 @@ export interface Payload {
   isComplete?: boolean
   hasStarted?: boolean
   errorMessage?: string | null
+  fileTypes: string
 }
 
 export type State = File[]
