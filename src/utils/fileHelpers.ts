@@ -1,14 +1,20 @@
-import { ProRes, ActionsFiles, File, ConvertStatus } from "."
-import { PROPRES_422, PROPRES_HQ, PROPRES_4444, PROPRES_LT, PROPRES_PROXY } from './recipes'
+import { ProRes, ActionsFiles, File, ConvertStatus } from '.'
+import {
+  PROPRES_422,
+  PROPRES_HQ,
+  PROPRES_4444,
+  PROPRES_LT,
+  PROPRES_PROXY,
+} from './recipes'
 
 export const removeFileExtension = (fileName: string) => {
   if (fileName.length <= 0) {
     return fileName
   }
-  for (let i = fileName.length; i > 0; i --) {
+  for (let i = fileName.length; i > 0; i--) {
     if (fileName[i] === '.') {
       return fileName.substring(0, i)
-     }
+    }
   }
 }
 
@@ -16,11 +22,17 @@ export const getFileExtension = (fileName: string) => {
   if (fileName.length <= 0) {
     return fileName
   }
-  for (let i = fileName.length; i > 0; i --) {
+  for (let i = fileName.length; i > 0; i--) {
     if (fileName[i - 1] === '.') {
       return fileName.substring(i, fileName.length)
-     }
+    }
   }
+}
+
+export const cleanExtensionList = (ExtensionList: string) => {
+  const cleanExtensionList = ExtensionList.toLocaleLowerCase()
+    .replace(/[^0-9a-z,\s+]*$/g, '')
+  return cleanExtensionList
 }
 
 export const getRecipe = (profile: ProRes) => {
@@ -38,7 +50,7 @@ export const getRecipe = (profile: ProRes) => {
     default:
       return PROPRES_422
   }
- }
+}
 export const getPresetNumber = (profile: ProRes) => {
   switch (profile) {
     case ProRes.PROXY:
@@ -57,7 +69,6 @@ export const getPresetNumber = (profile: ProRes) => {
 }
 
 export const useMakeUpdate = (dispatchFileList: any, filesList: File[]) => {
-
   const makeUpdate = (index: number, update: ConvertStatus) => {
     const { progress, hasEnded, errorMessage, hasStarted, isComplete } = update
     if (hasStarted && !hasEnded) {
@@ -78,7 +89,7 @@ export const useMakeUpdate = (dispatchFileList: any, filesList: File[]) => {
         },
       })
     }
-  
+
     if (hasStarted && progress) {
       dispatchFileList({
         type: ActionsFiles.UpdateItem,
@@ -97,7 +108,7 @@ export const useMakeUpdate = (dispatchFileList: any, filesList: File[]) => {
         },
       })
     }
-  
+
     if (isComplete) {
       dispatchFileList({
         type: ActionsFiles.UpdateItem,
@@ -116,7 +127,7 @@ export const useMakeUpdate = (dispatchFileList: any, filesList: File[]) => {
         },
       })
     }
-  
+
     if (errorMessage) {
       dispatchFileList({
         type: ActionsFiles.UpdateItem,
@@ -138,4 +149,3 @@ export const useMakeUpdate = (dispatchFileList: any, filesList: File[]) => {
   }
   return makeUpdate
 }
- 

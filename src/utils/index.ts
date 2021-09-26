@@ -14,9 +14,11 @@ import {
   getRecipe,
   getPresetNumber,
   useMakeUpdate,
-  getFileExtension
+  getFileExtension,
+  cleanExtensionList
 } from './fileHelpers'
 import { filesReducer } from './reducer'
+import { DEFAULT_FILE_EXTENSION }  from './constants'
 
 export {
   ProRes,
@@ -26,6 +28,8 @@ export {
   ActionsFiles,
   useMakeUpdate,
   filesReducer,
-  getFileExtension
+  getFileExtension,
+  cleanExtensionList,
+  DEFAULT_FILE_EXTENSION
 }
 export type { File, ConvertStatus, Payload, State, Action, Reducer, SettingsHook }

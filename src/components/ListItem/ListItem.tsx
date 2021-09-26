@@ -51,6 +51,8 @@ const ListItem = ({ file, index, dispatch }: Props) => {
       </Box>
       <Box width="10%">
         <Button
+          variant='link'
+          padding='2'
           onClick={() => {
             dispatch({ type: ActionsFiles.RemoveItem, payload: { index } })
           }}

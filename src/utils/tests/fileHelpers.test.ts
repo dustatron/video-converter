@@ -1,4 +1,4 @@
-import { removeFileExtension, getFileExtension } from '../index'
+import { removeFileExtension, getFileExtension, cleanExtensionList } from '../index'
 // import { PROPRES_422, PROPRES_HQ, PROPRES_4444, PROPRES_LT, PROPRES_PROXY } from '../recipes'
 
 describe('removeFileExtension', () => {
@@ -28,6 +28,15 @@ describe('getFileExtension', () => {
     expect(newFileName).toEqual(expectedExtension)
   })
   
+})
+
+describe('cleanExtensionList', () => {
+  it('should only allow three letters and a comma', () => {
+    const list = 'MP3, mxf, mov, mv, &'
+    const expectedList = 'mp3, mxf, mov, mv, '
+    const cleanList = cleanExtensionList(list)
+    expect(cleanList).toEqual(expectedList)
+  })
 })
 
 // describe('getRecipe', () => {

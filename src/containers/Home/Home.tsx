@@ -2,7 +2,6 @@ import Settings from '../../components/Settings'
 import GetFiles from '../../components/GetFiles'
 import {
   Container,
-  Heading,
   Tabs,
   Tab,
   TabList,
@@ -13,11 +12,10 @@ import {
 const Home = () => {
 
   return (
-    <Container maxW="container.xl">
-      <Heading>Video Converter</Heading>
+    <Container maxW="container.xl" padding='4'>
       <Tabs isFitted variant="enclosed">
         <TabList mb="1em">
-          <Tab>Convert</Tab>
+          <Tab>Batch Convert</Tab>
           <Tab>Settings</Tab>
         </TabList>
         <TabPanels>

@@ -1,12 +1,22 @@
-import { ReactElement, useCallback, ChangeEvent } from 'react'
-import { VStack, Stack, Box, Button, Select, Text } from '@chakra-ui/react'
-import { useDropzone } from 'react-dropzone'
 import {
-  File,
-  ProRes,
-  ActionsFiles,
-  useMakeUpdate,
-} from '../../utils'
+  ReactElement,
+  useCallback,
+  ChangeEvent,
+  useState,
+  useEffect,
+} from 'react'
+import {
+  VStack,
+  Stack,
+  Box,
+  Button,
+  Select,
+  Text,
+  Divider,
+} from '@chakra-ui/react'
+import { isEmpty } from 'lodash'
+import { useDropzone } from 'react-dropzone'
+import { File, ProRes, ActionsFiles, useMakeUpdate } from '../../utils'
 import { ArrowRightIcon, DeleteIcon } from '@chakra-ui/icons'
 import { useSettings } from '../../context/SettingsContext'
 import ListItem from '../ListItem'
@@ -19,8 +29,14 @@ function GetFiles(): ReactElement {
     dispatchFileList,
     filesList,
     setAlert,
-    fileTypes
+    fileTypes,
   } = useSettings()
+
+  const [status, setState] = useState<ReactElement<any, any>>()
+
+  useEffect(() => {
+    setState(getStatus())
+  }, [filesList])
 
   const handleProRes = (e: ChangeEvent<HTMLSelectElement>) => {
     const flavor = e.target.value
@@ -39,6 +55,42 @@ function GetFiles(): ReactElement {
         i,
         makeUpdate
       )
+    }
+  }
+
+  const badge = (value: string, color: string) => {
+    return (
+      <Box
+        display="inline-block"
+        borderRadius="md"
+        bg={color}
+        color="white"
+        padding="1"
+        fontSize="xs"
+      >
+        {value}
+      </Box>
+    )
+  }
+
+  const getStatus = () => {
+    const hasStarted =
+      filesList.filter(item => item.status.hasStarted).length > 0
+    const isComplete =
+      filesList.filter(item => item.status.isComplete).length ===
+      filesList.length && !isEmpty(filesList)
+    const hasError = filesList.filter(item => item.status.errorMessage).length > 0 && !isEmpty(filesList)
+    
+    if (hasStarted && !isComplete) {
+      return badge('Started', 'orange.500')
+    }
+    if (hasError) {
+      return badge('Error', 'red.500')
+    }
+    if (isComplete) {
+      return badge('Done', 'green.600')
+    } else {
+      return badge('Ready', 'gray.600')
     }
   }
 
@@ -138,7 +190,26 @@ function GetFiles(): ReactElement {
             </Box>
           )}
         </Box>
-        <Stack direction="row">
+        <Stack direction="row" spacing="5">
+          <Stack
+            direction="row"
+            spacing="2"
+            border="1px"
+            borderColor="gray.200"
+            padding="2"
+            borderRadius="md"
+          >
+            <Box>Files: {filesList.length} </Box>
+            <Divider orientation="vertical" />
+            <Box>Status: {status} </Box>
+            <Divider orientation="vertical" />
+            <Box>
+              completed:{' '}
+              {`${filesList.filter(item => item.status.isComplete).length} of ${
+                filesList.length
+              }`}{' '}
+            </Box>
+          </Stack>
           <Button
             rightIcon={<DeleteIcon />}
             onClick={() => {

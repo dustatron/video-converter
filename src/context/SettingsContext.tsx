@@ -7,7 +7,7 @@ import {
   ReactElement,
   FC
 } from "react"
-import { State, SettingsHook, filesReducer, ProRes } from "../utils"
+import { State, SettingsHook, filesReducer, ProRes, cleanExtensionList, DEFAULT_FILE_EXTENSION } from "../utils"
 
 const SettingsContext = createContext<SettingsHook>({} as SettingsHook)
 
@@ -20,7 +20,12 @@ export const SettingsProvider: FC = ({ children }): ReactElement => {
   const [filesList, dispatchFileList] = useReducer(filesReducer, fileState)
   const [toLocation, setToLocation] = useState<string>('')
   const [proResFlavor, setProResFlavor] = useState<ProRes>(ProRes.STANDARD)
-  const [fileTypes, setFileTypes] = useState<string>('mp4, mov, webm, avi, mkv')
+  const [fileTypes, updateFileTypes] = useState<string>(DEFAULT_FILE_EXTENSION)
+
+  const setFileTypes = (value: string) => {
+    const cleanValue = cleanExtensionList(value)
+    updateFileTypes(cleanValue)
+  }
 
   const setLocalStorage = () => {
     localStorage.setItem('video-converter-to', toLocation)
@@ -38,7 +43,7 @@ export const SettingsProvider: FC = ({ children }): ReactElement => {
       setProResFlavor(flavor)
     }
     if (fileTypes) {
-      setFileTypes(fileTypes)
+      updateFileTypes(fileTypes)
     }
   }, [])
 

@@ -1,0 +1,1 @@
+export const DEFAULT_FILE_EXTENSION = 'mp4, mov, webm, avi, mkv'
