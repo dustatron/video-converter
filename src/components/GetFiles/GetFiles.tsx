@@ -33,9 +33,13 @@ function GetFiles(): ReactElement {
   } = useSettings()
 
   const [status, setState] = useState<ReactElement<any, any>>()
+  const [isStartDisabled, setIsStartDisabled] = useState<boolean>(true)
+
+  const makeUpdate = useMakeUpdate(dispatchFileList, filesList)
 
   useEffect(() => {
     setState(getStatusBadge())
+    getStartStatus()
   }, [filesList])
 
   const handleProRes = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -43,7 +47,25 @@ function GetFiles(): ReactElement {
     setProResFlavor(flavor as ProRes)
   }
 
-  const makeUpdate = useMakeUpdate(dispatchFileList, filesList)
+  const getStartStatus = () => {
+    const listIsComplete =
+      filesList.filter(item => item.status.isComplete).length ===
+      filesList.length
+    const isRunning = filesList.filter((item)=> item.status.progress && item.status.progress > 0).length > 0
+   
+    if (isRunning) {
+      setIsStartDisabled(true)
+    }
+
+    if (filesList.length >= 1 && !listIsComplete && !isRunning) {
+      setIsStartDisabled(false)
+    }
+    
+    if (filesList.length === 0) {
+      setIsStartDisabled(true)
+    }
+    
+  }
 
   const processBatch = async () => {
     for (let i = 0; i < filesList.length; i++) {
@@ -80,11 +102,16 @@ function GetFiles(): ReactElement {
       filesList.filter(item => item.status.hasStarted).length > 0
     const isComplete =
       filesList.filter(item => item.status.isComplete).length ===
-      filesList.length && !isEmpty(filesList)
-    const hasError = filesList.filter(item => item.status.errorMessage).length > 0 && !isEmpty(filesList)
-    
+        filesList.length && !isEmpty(filesList)
+    const hasError =
+      filesList.filter(item => item.status.errorMessage).length > 0 &&
+      !isEmpty(filesList)
+
     if (hasStarted && !isComplete) {
       return badge('Started', 'orange.500')
+    }
+    if (!hasStarted && !isComplete && filesList.length > 0) {
+      return badge('Ready', 'gray.600')
     }
     if (hasError) {
       return badge('Error', 'red.500')
@@ -92,7 +119,7 @@ function GetFiles(): ReactElement {
     if (isComplete) {
       return badge('Done', 'green.600')
     } else {
-      return badge('Ready', 'gray.600')
+      return badge('Add Videos', 'gray.300')
     }
   }
 
@@ -152,7 +179,7 @@ function GetFiles(): ReactElement {
               color="white"
               onClick={handleStart}
               rightIcon={<ArrowRightIcon />}
-              isDisabled={filesList.length <= 0}
+              isDisabled={isStartDisabled}
             >
               Start
             </Button>

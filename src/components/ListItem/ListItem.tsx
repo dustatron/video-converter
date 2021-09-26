@@ -53,6 +53,7 @@ const ListItem = ({ file, index, dispatch }: Props) => {
         <Button
           variant='link'
           padding='2'
+          isDisabled={!!status.progress }
           onClick={() => {
             dispatch({ type: ActionsFiles.RemoveItem, payload: { index } })
           }}
