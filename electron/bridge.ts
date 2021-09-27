@@ -84,7 +84,7 @@ export const api = {
         .videoCodec('prores_ks')
         .audioCodec('pcm_s16le')
         .outputOptions([`-profile:v ${getPresetNumber(preset)}`, '-qscale:v 9', '-vendor ap10', '-pix_fmt yuv422p10le'])
-        .on('start', function (filenames) {
+        .on('start', function () {
           const update: ConvertStatus = {
             progress: undefined,
             hasEnded: false,

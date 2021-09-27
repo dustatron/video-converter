@@ -34,14 +34,14 @@ const ListItem = ({ file, index, dispatch }: Props) => {
     }
   }
   return (
-    <Flex border="1px" width="100%" borderRadius="md">
+    <Flex border="1px" width="100%" borderRadius="md" justifyContent='space-between'>
       <Center width="10%">
         {!status.hasStarted && <Icon color='blue.500' w={6} h={6} as={FaTag} />}
         {status.hasStarted && !status.hasEnded && <Spinner color='blue.500' emptyColor="gray.200" thickness='4px' />}
         {status.isComplete && <Icon color='green.500' w={10} h={10} as={FaCheckCircle} />}
         {status.errorMessage && <Icon color='red.500' w={6} h={6} as={RiErrorWarningFill} />}
       </Center>
-      <Box width="85%" padding="2" height="6em">
+      <Box  padding="2" height="6em" width="100%">
         Source: <strong>{file.name}</strong>
         <Box>Status: {getStatusReport()}</Box>
         {!status.isComplete && (
@@ -49,7 +49,7 @@ const ListItem = ({ file, index, dispatch }: Props) => {
         )}
         {status.isComplete && <Progress value={100} />}
       </Box>
-      <Box width="6%">
+      <Center width="10%">
         <Button
           variant='link'
           padding='2'
@@ -60,7 +60,7 @@ const ListItem = ({ file, index, dispatch }: Props) => {
         >
           <CloseIcon />
         </Button>
-      </Box>
+      </Center>
     </Flex>
   )
 }

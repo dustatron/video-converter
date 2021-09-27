@@ -13,6 +13,7 @@ import {
   Select,
   Text,
   Divider,
+  Flex
 } from '@chakra-ui/react'
 import { isEmpty } from 'lodash'
 import { useDropzone } from 'react-dropzone'
@@ -219,7 +220,7 @@ function GetFiles(): ReactElement {
             </Box>
           )}
         </Box>
-        <Stack direction="row" spacing="5">
+        <Flex width="100%" justifyContent='space-between'>
           <Stack
             direction="row"
             spacing="2"
@@ -227,6 +228,7 @@ function GetFiles(): ReactElement {
             borderColor="gray.200"
             padding="2"
             borderRadius="md"
+            with='100%'
           >
             <Box>Files: {filesList.length} </Box>
             <Divider orientation="vertical" />
@@ -247,7 +249,7 @@ function GetFiles(): ReactElement {
           >
             Clear All
           </Button>
-        </Stack>
+        </Flex>
         <Stack direction="column" spacing={3} width="100%">
           {filesList.map((file: File, index: number) => (
             <ListItem
